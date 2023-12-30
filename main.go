@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"fiber/sample"
+	"github.com/sidpandagle/fiber/sample"
 )
 
 func getPort() string {
