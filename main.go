@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"fiber/sample"
 )
 
 func getPort() string {
@@ -19,6 +20,8 @@ func getPort() string {
 
 func main() {
 	app := fiber.New()
+
+	run();
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
