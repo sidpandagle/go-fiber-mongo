@@ -8,39 +8,48 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
-var validate = validator.New()
+var reportCollection *mongo.Collection = configs.GetCollection(configs.DB, "reports")
 
-func CreateUser(c *fiber.Ctx) error {
+// var validate = validator.New()
+
+func CreateReport(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	var user models.User
+	var report models.Report
 	defer cancel()
 
 	//validate the request body
-	if err := c.BodyParser(&user); err != nil {
+	if err := c.BodyParser(&report); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//use the validator library to validate required fields
-	if validationErr := validate.Struct(&user); validationErr != nil {
+	if validationErr := validate.Struct(&report); validationErr != nil {
 		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
-	newUser := models.User{
-		Id:       primitive.NewObjectID(),
-		Name:     user.Name,
-		Location: user.Location,
-		Title:    user.Title,
+	newUser := models.Report{
+		Id:           primitive.NewObjectID(),
+		Name:         report.Name,
+		Category:     report.Category,
+		Url:          report.Url,
+		Description:  report.Description,
+		Summary:      report.Summary,
+		Segmentation: report.Segmentation,
+		TOC:          report.TOC,
+		Methodology:  report.Methodology,
+		Price:        report.Price,
+		CreatedAt:    report.CreatedAt,
+		UpdatedAt:    report.UpdatedAt,
+		Status:       report.Status,
 	}
 
-	result, err := userCollection.InsertOne(ctx, newUser)
+	result, err := reportCollection.InsertOne(ctx, newUser)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
@@ -48,15 +57,15 @@ func CreateUser(c *fiber.Ctx) error {
 	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
 }
 
-func GetAUser(c *fiber.Ctx) error {
+func GetAReport(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	userId := c.Params("userId")
-	var user models.User
+	var user models.Report
 	defer cancel()
 
 	objId, _ := primitive.ObjectIDFromHex(userId)
 
-	err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
+	err := reportCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
@@ -64,35 +73,49 @@ func GetAUser(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": user}})
 }
 
-func EditAUser(c *fiber.Ctx) error {
+func EditAReport(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	userId := c.Params("userId")
-	var user models.User
+	var report models.Report
 	defer cancel()
 
 	objId, _ := primitive.ObjectIDFromHex(userId)
 
 	//validate the request body
-	if err := c.BodyParser(&user); err != nil {
+	if err := c.BodyParser(&report); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//use the validator library to validate required fields
-	if validationErr := validate.Struct(&user); validationErr != nil {
+	if validationErr := validate.Struct(&report); validationErr != nil {
 		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
-	update := bson.M{"name": user.Name, "location": user.Location, "title": user.Title}
+	// update := bson.M{"name": report.Name, "location": report.Location, "title": report.Title}
+	update := bson.M{
+		"name":         report.Name,
+		"category":     report.Category,
+		"url":          report.Url,
+		"description":  report.Description,
+		"summary":      report.Summary,
+		"segmentation": report.Segmentation,
+		"toc":          report.TOC,
+		"methodology":  report.Methodology,
+		"price":        report.Price,
+		"createdAt":    report.CreatedAt,
+		"updatedAt":    report.UpdatedAt,
+		"status":       report.Status,
+	}
 
-	result, err := userCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
+	result, err := reportCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//get updated user details
-	var updatedUser models.User
+	var updatedUser models.Report
 	if result.MatchedCount == 1 {
-		err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
+		err := reportCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
@@ -101,14 +124,14 @@ func EditAUser(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedUser}})
 }
 
-func DeleteAUser(c *fiber.Ctx) error {
+func DeleteAReport(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	userId := c.Params("userId")
 	defer cancel()
 
 	objId, _ := primitive.ObjectIDFromHex(userId)
 
-	result, err := userCollection.DeleteOne(ctx, bson.M{"id": objId})
+	result, err := reportCollection.DeleteOne(ctx, bson.M{"id": objId})
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
@@ -124,12 +147,12 @@ func DeleteAUser(c *fiber.Ctx) error {
 	)
 }
 
-func GetAllUsers(c *fiber.Ctx) error {
+func GetAllReports(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	var users []models.User
+	var users []models.Report
 	defer cancel()
 
-	results, err := userCollection.Find(ctx, bson.M{})
+	results, err := reportCollection.Find(ctx, bson.M{})
 
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
@@ -138,7 +161,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 	//reading from the db in an optimal way
 	defer results.Close(ctx)
 	for results.Next(ctx) {
-		var singleUser models.User
+		var singleUser models.Report
 		if err = results.Decode(&singleUser); err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}

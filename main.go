@@ -29,6 +29,7 @@ func main() {
 	configs.ConnectDB()
 
 	routes.UserRoute(app)
+	routes.ReportRoute(app)
 
 	app.Get("/", hello)
 
