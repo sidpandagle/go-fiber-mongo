@@ -59,27 +59,27 @@ func CreateReport(c *fiber.Ctx) error {
 
 func GetAReport(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	userId := c.Params("userId")
-	var user models.Report
+	reportId := c.Params("reportId")
+	var report models.Report
 	defer cancel()
 
-	objId, _ := primitive.ObjectIDFromHex(userId)
+	objId, _ := primitive.ObjectIDFromHex(reportId)
 
-	err := reportCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
+	err := reportCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&report)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
-	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": user}})
+	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": report}})
 }
 
 func EditAReport(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	userId := c.Params("userId")
+	reportId := c.Params("reportId")
 	var report models.Report
 	defer cancel()
 
-	objId, _ := primitive.ObjectIDFromHex(userId)
+	objId, _ := primitive.ObjectIDFromHex(reportId)
 
 	//validate the request body
 	if err := c.BodyParser(&report); err != nil {
@@ -126,10 +126,10 @@ func EditAReport(c *fiber.Ctx) error {
 
 func DeleteAReport(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	userId := c.Params("userId")
+	reportId := c.Params("reportId")
 	defer cancel()
 
-	objId, _ := primitive.ObjectIDFromHex(userId)
+	objId, _ := primitive.ObjectIDFromHex(reportId)
 
 	result, err := reportCollection.DeleteOne(ctx, bson.M{"id": objId})
 	if err != nil {
