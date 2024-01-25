@@ -19,6 +19,10 @@ var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users"
 var validate = validator.New()
 
 func CreateUser(c *fiber.Ctx) error {
+	// cld, _ := cloudinary.NewFromParams("dlxx8rmpi", "252848932298846", "oIVeSGjCaiWCZKoKj9AVUyeNn5U")
+	// var ctx = context.Background()
+	// resp, err := cld.Upload.Upload(ctx, "my_picture.jpg", uploader.UploadParams{PublicID: "my_image"})
+	// fmt.Println(resp)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var user models.User
 	defer cancel()

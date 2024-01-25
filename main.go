@@ -28,9 +28,9 @@ func main() {
 
 	configs.ConnectDB()
 
-	routes.UserRoute(app)
 	routes.CategoryRoute(app)
 	routes.ReportRoute(app)
+	routes.UserRoute(app)
 
 	app.Get("/", hello)
 
