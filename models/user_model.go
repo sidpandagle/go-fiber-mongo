@@ -7,4 +7,6 @@ type User struct {
 	Name     string             `json:"name,omitempty" validate:"required"`
 	Location string             `json:"location,omitempty" validate:"required"`
 	Title    string             `json:"title,omitempty" validate:"required"`
+	Email    string             `json:"email,omitempty" validate:"required"`
+	Password []byte             `json:"password,omitempty" validate:"required"`
 }

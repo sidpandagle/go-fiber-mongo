@@ -16,12 +16,13 @@ func UserRoute(app *fiber.App) {
 	app.Get("/user/:userId", controllers.GetAUser)
 	app.Put("/user/:userId", controllers.EditAUser)
 	app.Delete("/user/:userId", controllers.DeleteAUser)
-	app.Get("/user", controllers.GetAllUsers)
 	app.Get("/login", login)
+	app.Get("/user", controllers.GetAllUsers)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: jwtware.SigningKey{Key: []byte("secret")},
 	}))
+	app.Get("/users", controllers.GetAllUsers)
 	app.Get("/restricted", restricted)
 }
 

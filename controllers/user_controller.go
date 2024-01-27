@@ -13,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
@@ -37,11 +38,26 @@ func CreateUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
+	password := []byte(user.Password)
+
+	// Hashing the password with the default cost of 10
+	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println(hashedPassword)
+
+	// Comparing the password with the hash
+	// err = bcrypt.CompareHashAndPassword(hashedPassword, password)
+	// fmt.Println(err) // nil means it is a match
+
 	newUser := models.User{
 		Id:       primitive.NewObjectID(),
 		Name:     user.Name,
 		Location: user.Location,
 		Title:    user.Title,
+		Email:    user.Email,
+		Password: hashedPassword,
 	}
 
 	result, err := userCollection.InsertOne(ctx, newUser)
