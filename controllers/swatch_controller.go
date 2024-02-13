@@ -38,10 +38,52 @@ func CreateSwatch(c *fiber.Ctx) error {
 		Name:      swatch.Name,
 		Tags:      swatch.Tags,
 		Likes:     swatch.Likes,
-		CreatedAt: swatch.CreatedAt,
+		CreatedAt: time.Now(),
 	}
 
 	result, err := swatchCollection.InsertOne(ctx, newSwatch)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
+}
+
+func CreateSwatchList(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var swatches []models.Swatch
+
+	// Validate the request body
+	if err := c.BodyParser(&swatches); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	// Iterate through the array and validate each swatch
+	for _, swatch := range swatches {
+		if validationErr := validate.Struct(swatch); validationErr != nil {
+			return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+		}
+	}
+
+	// Create an array to store the new swatches
+	var newSwatches []interface{}
+
+	// Iterate through the array and create a new swatch for each
+	for _, swatch := range swatches {
+		newSwatch := models.Swatch{
+			Id:        primitive.NewObjectID(),
+			Name:      swatch.Name,
+			Tags:      swatch.Tags,
+			Likes:     swatch.Likes,
+			CreatedAt: time.Now(),
+		}
+		newSwatches = append(newSwatches, newSwatch)
+	}
+
+	// Insert the array of new swatches into the database
+	result, err := swatchCollection.InsertMany(ctx, newSwatches)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
@@ -87,7 +129,7 @@ func EditASwatch(c *fiber.Ctx) error {
 		"Name":      swatch.Name,
 		"Tags":      swatch.Tags,
 		"Likes":     swatch.Likes,
-		"CreatedAt": swatch.CreatedAt,
+		"CreatedAt": time.Now(),
 	}
 
 	result, err := swatchCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
