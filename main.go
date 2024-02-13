@@ -28,6 +28,7 @@ func main() {
 
 	configs.ConnectDB()
 
+	routes.SwatchRoute(app)
 	routes.CategoryRoute(app)
 	routes.ReportRoute(app)
 	routes.UserRoute(app)
