@@ -10,6 +10,7 @@ func SwatchRoute(app *fiber.App) {
 	app.Post("/swatch-add", controllers.CreateSwatchList)
 	app.Post("/swatch", controllers.CreateSwatch)
 	app.Get("/swatch/:swatchId", controllers.GetASwatch)
+	app.Get("/swatch/filter", controllers.GetFilteredSwatch)
 	app.Put("/swatch/:swatchId", controllers.EditASwatch)
 	app.Delete("/swatch/:swatchId", controllers.DeleteASwatch)
 	app.Get("/swatch", controllers.GetAllSwatch)

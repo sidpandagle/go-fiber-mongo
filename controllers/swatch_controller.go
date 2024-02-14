@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var swatchCollection *mongo.Collection = configs.GetCollection(configs.DB, "palletes")
@@ -190,6 +191,49 @@ func GetAllSwatch(c *fiber.Ctx) error {
 		if err = results.Decode(&singleSwatch); err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
+
+		// Calculate time difference with the current time
+		timeDifference := time.Since(singleSwatch.CreatedAt)
+
+		// Add the time difference to the Swatch struct
+		singleSwatch.TimeDifference = timeDifference
+
+		swatches = append(swatches, singleSwatch)
+	}
+
+	return c.Status(http.StatusOK).JSON(
+		responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": swatches}},
+	)
+}
+
+func GetFilteredSwatch(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	var swatches []models.Swatch
+	defer cancel()
+
+	findOptions := options.Find()
+	findOptions.SetSkip(1)
+	findOptions.SetLimit(20)
+
+	results, err := swatchCollection.Find(ctx, bson.M{}, findOptions)
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	//reading from the db in an optimal way
+	defer results.Close(ctx)
+	for results.Next(ctx) {
+		var singleSwatch models.Swatch
+		if err = results.Decode(&singleSwatch); err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		}
+
+		// Calculate time difference with the current time
+		timeDifference := time.Since(singleSwatch.CreatedAt)
+
+		// Add the time difference to the Swatch struct
+		singleSwatch.TimeDifference = timeDifference
 
 		swatches = append(swatches, singleSwatch)
 	}
