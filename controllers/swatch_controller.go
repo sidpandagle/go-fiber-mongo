@@ -178,7 +178,7 @@ func GetAllSwatch(c *fiber.Ctx) error {
 	var swatches []models.Swatch
 	defer cancel()
 
-	results, err := swatchCollection.Find(ctx, bson.M{})
+	results, err := swatchCollection.Find(ctx, bson.M{}, options.Find().SetLimit(10).SetSkip(10))
 
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
@@ -211,11 +211,7 @@ func GetFilteredSwatch(c *fiber.Ctx) error {
 	var swatches []models.Swatch
 	defer cancel()
 
-	findOptions := options.Find()
-	findOptions.SetSkip(1)
-	findOptions.SetLimit(20)
-
-	results, err := swatchCollection.Find(ctx, bson.M{}, findOptions)
+	results, err := swatchCollection.Find(ctx, bson.M{}, options.Find().SetLimit(10).SetSkip(10))
 
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
