@@ -5,7 +5,10 @@ import (
 	"fibgo/configs"
 	"fibgo/models"
 	"fibgo/responses"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -150,6 +153,36 @@ func EditASwatch(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedSwatch}})
 }
 
+func IncrementLike(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	swatchId := c.Params("swatchId")
+	defer cancel()
+
+	objId, _ := primitive.ObjectIDFromHex(swatchId)
+
+	// Increment the Likes field by 1
+	update := bson.M{
+		"$inc": bson.M{"Likes": 1},
+		"$set": bson.M{"CreatedAt": time.Now()},
+	}
+
+	result, err := swatchCollection.UpdateOne(ctx, bson.M{"id": objId}, update)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	// Get updated swatch details
+	var updatedSwatch models.Swatch
+	if result.MatchedCount == 1 {
+		err := swatchCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedSwatch)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		}
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedSwatch}})
+}
+
 func DeleteASwatch(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	swatchId := c.Params("swatchId")
@@ -211,8 +244,45 @@ func GetFilteredSwatch(c *fiber.Ctx) error {
 	var swatches []models.Swatch
 	defer cancel()
 
-	results, err := swatchCollection.Find(ctx, bson.M{}, options.Find().SetLimit(10).SetSkip(10))
+	limitStr := c.Query("limit")
+	limit, errl := strconv.ParseInt(limitStr, 10, 64)
+	if errl != nil {
+		limit = 10
+	}
 
+	pageStr := c.Query("page")
+	page, errl := strconv.ParseInt(pageStr, 10, 64)
+	if errl != nil {
+		page = 1
+	}
+
+	trendingStr := c.Query("trending")
+	trending, errl := strconv.ParseInt(trendingStr, 10, 64)
+	if errl != nil {
+		trending = 0
+	}
+
+	// Get the search query parameter from the request
+	searchQuery := c.Query("search")
+
+	// Create a filter based on the search query
+	filter := bson.M{}
+	fmt.Println("Val:", searchQuery, searchQuery == "")
+	if searchQuery != "" {
+		tags := strings.Split(searchQuery, ",")
+		filter["tags"] = bson.M{"$all": tags}
+	}
+
+	findOptions := options.Find().SetLimit(int64(limit)).SetSkip((int64(page) - 1) * int64(limit)).SetSort(bson.D{{"createdAt", 1}})
+
+	if trending == 1 {
+		findOptions.SetSort(bson.D{{"likes", -1}})
+	}
+
+	results, err := swatchCollection.Find(ctx, filter, findOptions)
+	if searchQuery != "" {
+		fmt.Println("Filter applied:", filter)
+	}
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
