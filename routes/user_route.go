@@ -6,7 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	jwtware "github.com/gofiber/contrib/jwt"
+	// Uncomment this of JWT Middleware 
+	// jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/golang-jwt/jwt/v5"
 )
 
