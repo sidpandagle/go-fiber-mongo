@@ -19,9 +19,10 @@ func UserRoute(app *fiber.App) {
 	app.Get("/login", login)
 	app.Get("/user", controllers.GetAllUsers)
 	// JWT Middleware
-	app.Use(jwtware.New(jwtware.Config{
-		SigningKey: jwtware.SigningKey{Key: []byte("secret")},
-	}))
+	// Uncomment this of JWT Middleware 
+	// app.Use(jwtware.New(jwtware.Config{
+	// 	SigningKey: jwtware.SigningKey{Key: []byte("secret")},
+	// }))
 	app.Get("/users", controllers.GetAllUsers)
 	app.Get("/restricted", restricted)
 }
