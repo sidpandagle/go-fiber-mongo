@@ -12,7 +12,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.16.0 // indirect
 	github.com/gofiber/contrib/jwt v1.0.8 // indirect
-	github.com/gofiber/fiber/v2 v2.52.0 // indirect
+	github.com/gofiber/fiber/v2 v2.52.5 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
