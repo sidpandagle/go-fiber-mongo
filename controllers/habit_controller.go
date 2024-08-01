@@ -38,6 +38,7 @@ func CreateHabit(c *fiber.Ctx) error {
 		Activity: habit.Activity,
 		UserId:   habit.UserId,
 		Status:   habit.Status,
+		Date:     habit.Date,
 	}
 
 	result, err := habitCollection.InsertOne(ctx, newHabit)
@@ -86,6 +87,7 @@ func EditAHabit(c *fiber.Ctx) error {
 		"activity": habit.Activity,
 		"userId":   habit.UserId,
 		"status":   habit.Status,
+		"date":     habit.Date,
 	}
 
 	result, err := habitCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
