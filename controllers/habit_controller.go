@@ -5,6 +5,7 @@ import (
 	"fibgo/configs"
 	"fibgo/models"
 	"fibgo/responses"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -47,6 +48,41 @@ func CreateHabit(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
+}
+func CreateHabits(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var habits []models.Habit
+
+	//validate the request body
+	if err := c.BodyParser(&habits); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	for _, habit := range habits {
+
+		//use the validator library to validate required fields
+		if validationErr := validate.Struct(&habit); validationErr != nil {
+			return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+		}
+
+		newHabit := models.Habit{
+			Id:       primitive.NewObjectID(),
+			Activity: habit.Activity,
+			UserId:   habit.UserId,
+			Status:   habit.Status,
+			Date:     habit.Date,
+		}
+
+		result, err := habitCollection.InsertOne(ctx, newHabit)
+		fmt.Println(result)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		}
+	}
+
+	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": nil}})
 }
 
 func GetAHabit(c *fiber.Ctx) error {

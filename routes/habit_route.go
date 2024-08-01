@@ -7,6 +7,7 @@ import (
 )
 
 func HabitRoute(app *fiber.App) {
+	app.Post("/habits", controllers.CreateHabits)
 	app.Post("/habit", controllers.CreateHabit)
 	app.Get("/habit/:habitId", controllers.GetAHabit)
 	app.Put("/habit/:habitId", controllers.EditAHabit)
