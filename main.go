@@ -49,7 +49,7 @@ func main() {
 
 	app.Get("/", hello)
 
-	// app.Static("/", "./public")
+	app.Static("/", "./public")
 
 	app.Listen(getPort())
 }
