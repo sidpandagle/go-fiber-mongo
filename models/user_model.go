@@ -8,5 +8,5 @@ type User struct {
 	Location string             `json:"location,omitempty" validate:"required"`
 	Title    string             `json:"title,omitempty" validate:"required"`
 	Email    string             `json:"email,omitempty" validate:"required"`
-	Password []byte             `json:"password,omitempty" validate:"required"`
+	Password string             `json:"password,omitempty" validate:"required"`
 }

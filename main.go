@@ -41,11 +41,12 @@ func main() {
 
 	configs.ConnectDB()
 
+	routes.AuthRoute(app)
+	routes.UserRoute(app)
 	routes.HabitRoute(app)
 	routes.SwatchRoute(app)
 	routes.CategoryRoute(app)
 	routes.ReportRoute(app)
-	routes.UserRoute(app)
 
 	app.Get("/", hello)
 
