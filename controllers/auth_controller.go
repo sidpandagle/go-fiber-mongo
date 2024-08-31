@@ -29,12 +29,12 @@ func Login(c *fiber.Ctx) error {
 
 	err := userCollection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	passErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if passErr != nil {
-		// return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": passErr.Error()}})
+		// return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": passErr.Error()}})
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 

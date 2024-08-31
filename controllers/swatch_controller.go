@@ -29,12 +29,12 @@ func CreateSwatch(c *fiber.Ctx) error {
 
 	//validate the request body
 	if err := c.BodyParser(&swatch); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//use the validator library to validate required fields
 	if validationErr := validate.Struct(&swatch); validationErr != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
 	newSwatch := models.Swatch{
@@ -47,10 +47,10 @@ func CreateSwatch(c *fiber.Ctx) error {
 
 	result, err := swatchCollection.InsertOne(ctx, newSwatch)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
-	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
+	return c.Status(http.StatusCreated).JSON(responses.SuccessAPIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
 }
 
 func CreateSwatchList(c *fiber.Ctx) error {
@@ -61,13 +61,13 @@ func CreateSwatchList(c *fiber.Ctx) error {
 
 	// Validate the request body
 	if err := c.BodyParser(&swatches); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	// Iterate through the array and validate each swatch
 	for _, swatch := range swatches {
 		if validationErr := validate.Struct(swatch); validationErr != nil {
-			return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+			return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 		}
 	}
 
@@ -89,10 +89,10 @@ func CreateSwatchList(c *fiber.Ctx) error {
 	// Insert the array of new swatches into the database
 	result, err := swatchCollection.InsertMany(ctx, newSwatches)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
-	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
+	return c.Status(http.StatusCreated).JSON(responses.SuccessAPIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
 }
 
 func GetASwatch(c *fiber.Ctx) error {
@@ -105,10 +105,10 @@ func GetASwatch(c *fiber.Ctx) error {
 
 	err := swatchCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&swatch)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
-	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": swatch}})
+	return c.Status(http.StatusOK).JSON(responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": swatch}})
 }
 
 func EditASwatch(c *fiber.Ctx) error {
@@ -121,12 +121,12 @@ func EditASwatch(c *fiber.Ctx) error {
 
 	//validate the request body
 	if err := c.BodyParser(&swatch); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//use the validator library to validate required fields
 	if validationErr := validate.Struct(&swatch); validationErr != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
 	update := bson.M{
@@ -138,7 +138,7 @@ func EditASwatch(c *fiber.Ctx) error {
 
 	result, err := swatchCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//get updated user details
@@ -146,11 +146,11 @@ func EditASwatch(c *fiber.Ctx) error {
 	if result.MatchedCount == 1 {
 		err := swatchCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedSwatch)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+			return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
 	}
 
-	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedSwatch}})
+	return c.Status(http.StatusOK).JSON(responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedSwatch}})
 }
 
 func IncrementLike(c *fiber.Ctx) error {
@@ -168,7 +168,7 @@ func IncrementLike(c *fiber.Ctx) error {
 
 	result, err := swatchCollection.UpdateOne(ctx, bson.M{"id": objId}, update)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	// Get updated swatch details
@@ -176,11 +176,11 @@ func IncrementLike(c *fiber.Ctx) error {
 	if result.MatchedCount == 1 {
 		err := swatchCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedSwatch)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+			return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
 	}
 
-	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedSwatch}})
+	return c.Status(http.StatusOK).JSON(responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedSwatch}})
 }
 
 func DeleteASwatch(c *fiber.Ctx) error {
@@ -192,17 +192,17 @@ func DeleteASwatch(c *fiber.Ctx) error {
 
 	result, err := swatchCollection.DeleteOne(ctx, bson.M{"id": objId})
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	if result.DeletedCount < 1 {
 		return c.Status(http.StatusNotFound).JSON(
-			responses.APIResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": "Swatch with specified ID not found!"}},
+			responses.SuccessAPIResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": "Swatch with specified ID not found!"}},
 		)
 	}
 
 	return c.Status(http.StatusOK).JSON(
-		responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": "User successfully deleted!"}},
+		responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": "User successfully deleted!"}},
 	)
 }
 
@@ -214,7 +214,7 @@ func GetAllSwatch(c *fiber.Ctx) error {
 	results, err := swatchCollection.Find(ctx, bson.M{}, options.Find().SetLimit(10).SetSkip(10))
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//reading from the db in an optimal way
@@ -222,7 +222,7 @@ func GetAllSwatch(c *fiber.Ctx) error {
 	for results.Next(ctx) {
 		var singleSwatch models.Swatch
 		if err = results.Decode(&singleSwatch); err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+			return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
 
 		// Calculate time difference with the current time
@@ -235,7 +235,7 @@ func GetAllSwatch(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusOK).JSON(
-		responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": swatches}},
+		responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": swatches}},
 	)
 }
 
@@ -284,7 +284,7 @@ func GetFilteredSwatch(c *fiber.Ctx) error {
 		fmt.Println("Filter applied:", filter)
 	}
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//reading from the db in an optimal way
@@ -292,7 +292,7 @@ func GetFilteredSwatch(c *fiber.Ctx) error {
 	for results.Next(ctx) {
 		var singleSwatch models.Swatch
 		if err = results.Decode(&singleSwatch); err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+			return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
 
 		// Calculate time difference with the current time
@@ -305,6 +305,6 @@ func GetFilteredSwatch(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusOK).JSON(
-		responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": swatches}},
+		responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": swatches}},
 	)
 }

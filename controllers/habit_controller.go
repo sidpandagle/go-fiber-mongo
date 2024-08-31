@@ -26,12 +26,12 @@ func CreateHabit(c *fiber.Ctx) error {
 
 	//validate the request body
 	if err := c.BodyParser(&habit); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//use the validator library to validate required fields
 	if validationErr := validate.Struct(&habit); validationErr != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
 	newHabit := models.Habit{
@@ -44,10 +44,10 @@ func CreateHabit(c *fiber.Ctx) error {
 
 	result, err := habitCollection.InsertOne(ctx, newHabit)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
-	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
+	return c.Status(http.StatusCreated).JSON(responses.SuccessAPIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": result}})
 }
 func CreateHabits(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -57,14 +57,14 @@ func CreateHabits(c *fiber.Ctx) error {
 
 	//validate the request body
 	if err := c.BodyParser(&habits); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	for _, habit := range habits {
 
 		//use the validator library to validate required fields
 		if validationErr := validate.Struct(&habit); validationErr != nil {
-			return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+			return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 		}
 
 		newHabit := models.Habit{
@@ -78,11 +78,11 @@ func CreateHabits(c *fiber.Ctx) error {
 		result, err := habitCollection.InsertOne(ctx, newHabit)
 		fmt.Println(result)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+			return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
 	}
 
-	return c.Status(http.StatusCreated).JSON(responses.APIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": nil}})
+	return c.Status(http.StatusCreated).JSON(responses.SuccessAPIResponse{Status: http.StatusCreated, Message: "success", Data: &fiber.Map{"data": nil}})
 }
 
 func GetAHabit(c *fiber.Ctx) error {
@@ -95,10 +95,10 @@ func GetAHabit(c *fiber.Ctx) error {
 
 	err := habitCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&habit)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
-	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": habit}})
+	return c.Status(http.StatusOK).JSON(responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": habit}})
 }
 
 func EditAHabit(c *fiber.Ctx) error {
@@ -111,12 +111,12 @@ func EditAHabit(c *fiber.Ctx) error {
 
 	//validate the request body
 	if err := c.BodyParser(&habit); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//use the validator library to validate required fields
 	if validationErr := validate.Struct(&habit); validationErr != nil {
-		return c.Status(http.StatusBadRequest).JSON(responses.APIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+		return c.Status(http.StatusBadRequest).JSON(responses.SuccessAPIResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
 	update := bson.M{
@@ -128,7 +128,7 @@ func EditAHabit(c *fiber.Ctx) error {
 
 	result, err := habitCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//get updated user details
@@ -136,11 +136,11 @@ func EditAHabit(c *fiber.Ctx) error {
 	if result.MatchedCount == 1 {
 		err := habitCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+			return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
 	}
 
-	return c.Status(http.StatusOK).JSON(responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedUser}})
+	return c.Status(http.StatusOK).JSON(responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": updatedUser}})
 }
 
 func DeleteAHabit(c *fiber.Ctx) error {
@@ -152,17 +152,17 @@ func DeleteAHabit(c *fiber.Ctx) error {
 
 	result, err := habitCollection.DeleteOne(ctx, bson.M{"id": objId})
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	if result.DeletedCount < 1 {
 		return c.Status(http.StatusNotFound).JSON(
-			responses.APIResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": "User with specified ID not found!"}},
+			responses.SuccessAPIResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": "User with specified ID not found!"}},
 		)
 	}
 
 	return c.Status(http.StatusOK).JSON(
-		responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": "User successfully deleted!"}},
+		responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": "User successfully deleted!"}},
 	)
 }
 
@@ -174,7 +174,7 @@ func GetAllHabit(c *fiber.Ctx) error {
 	results, err := habitCollection.Find(ctx, bson.M{})
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	//reading from the db in an optimal way
@@ -182,13 +182,13 @@ func GetAllHabit(c *fiber.Ctx) error {
 	for results.Next(ctx) {
 		var singleUser models.Habit
 		if err = results.Decode(&singleUser); err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(responses.APIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+			return c.Status(http.StatusInternalServerError).JSON(responses.SuccessAPIResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
 		}
 
 		users = append(users, singleUser)
 	}
 
 	return c.Status(http.StatusOK).JSON(
-		responses.APIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": users}},
+		responses.SuccessAPIResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": users}},
 	)
 }
